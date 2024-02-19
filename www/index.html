@@ -15,6 +15,7 @@
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
 		/>
+		<link rel="stylesheet" href="css/estilos.css">
 		<title>Document</title>
 	</head>
 	<body>
@@ -58,8 +59,8 @@
               <ion-select-option value="banana">Banana</ion-select-option>
               <ion-select-option value="orange">Orange</ion-select-option>
             </ion-select>
-          </ion-item>
-          <ion-datetime show-default-buttons="true" done-text=“OK" cancel-text=“Cancelar"></ion-datetime> -->
+          </ion-item> -->
+          <!-- <ion-datetime show-default-buttons="true" done-text="OK" cancel-text="Cancelar"></ion-datetime> -->
 				</ion-content>
 			</page-home>
 
@@ -94,7 +95,7 @@
 							</ion-label>
 							<ion-datetime-button datetime="fechaAlimento"></ion-datetime-button>
 							<ion-modal>
-								<ion-datetime presentation="date" id="fechaAlimento"></ion-date>
+								<ion-datetime presentation="date" show-default-buttons="true" id="fechaAlimento"></ion-date>
 							</ion-modal>
 						</ion-item>
 

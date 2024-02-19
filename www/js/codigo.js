@@ -52,6 +52,9 @@ function Eventos() {
 	document
 		.querySelector("#btnLogin")
 		.addEventListener("click", TomarDatosLogin);
+	document
+		.querySelector("#btnRegAlimento")
+		.addEventListener("click", TomarDatosAlimento);
 }
 
 function TomarDatosLogin() {
@@ -171,7 +174,7 @@ function Navegar(evt) {
 		PoblarSelectAlimento();
 	} else if (RUTA == "/listar") {
 		LISTAR.style.display = "block";
-		ObtenerAlimentos();
+		ObtenerRegistros();
 	}
 }
 function cerrarMenu() {
@@ -211,7 +214,7 @@ function MostrarToast(mensaje, duracion, color) {
 	toast.present();
 }
 
-function ObtenerAlimentos() {
+async function ObtenerRegistros() {
 	MostrarLoader("Espere...");
 	fetch(
 		`https://calcount.develotion.com/registros.php?idUsuario=${localStorage.getItem(
@@ -231,12 +234,17 @@ function ObtenerAlimentos() {
 			console.log(response);
 			return response.json();
 		})
-		.then(function (data) {
+		.then(async function (data) {
 			console.log(data);
 			let cadena = "<ion-card> <ion-list>";
 			let icono = "";
 			if (data.registros.length != 0) {
-				for (let alimento of data.registros) {
+				for (let registro of data.registros) {
+					let listaAlimentos = await ObtenerAlimentos();
+					let alimento = undefined;
+					for(let a of listaAlimentos.alimentos){
+						if(registro.idAlimento == a.id) alimento = a;
+					}
 					icono = alimento.imagen + ".png";
 					cadena += `
 				<ion-item>
@@ -270,9 +278,9 @@ function ObtenerAlimentos() {
 		});
 }
 
-function PoblarSelectAlimento() {
-	MostrarLoader("Espere...");
-	fetch(`https://calcount.develotion.com/alimentos.php`,
+async function ObtenerAlimentos() {
+	let promesaAlimento = await fetch(
+		`https://calcount.develotion.com/alimentos.php`,
 
 		{
 			method: "GET",
@@ -282,21 +290,73 @@ function PoblarSelectAlimento() {
 				iduser: localStorage.getItem("idUser"),
 			},
 		}
-	)
+	);
+	let listaAlimentos = await promesaAlimento.json();
+	return listaAlimentos;
+}
+
+async function PoblarSelectAlimento() {
+	MostrarLoader("Espere...");
+	let lista = await ObtenerAlimentos();
+	DetenerLoader();
+	for (let alimento of lista.alimentos) {
+		document.querySelector(
+			"#slcAlimento"
+		).innerHTML += `<ion-select-option value="${alimento.id}">${alimento.nombre}</ion-select-option>`;
+	}
+}
+
+async function TomarDatosAlimento() {
+	let alimento = document.querySelector("#slcAlimento").value;
+	let cantidad = Number(document.querySelector("#txtCantidadAlimento").value);
+	let fecha = document.querySelector("ion-datetime").value;
+	let valorXPorcion = 0;
+	let total = undefined;
+	MostrarLoader("Espere...");
+	let lista = await ObtenerAlimentos();
+	DetenerLoader();
+	let encontrado = false;
+	for (let a of lista.alimentos) {
+		if(a.id == alimento){
+			for(let i = 0; i <= a.porcion.length || !encontrado; i++){
+				let caracter = a.porcion.charAt(i);
+				if(caracter == "g" || caracter == "m" || caracter == "u"){ 
+					valorXPorcion = parseInt(a.porcion.substring(0, i));
+					encontrado = true;
+				}
+			}
+		}
+	}
+	console.log(fecha);
+	total = valorXPorcion * cantidad;
+	// RegistrarAlimento(alimento, total, fecha);
+}
+
+function RegistrarAlimento(alimento, total, fecha) {
+	let registro = new Object();
+	registro.idAlimento = alimento;
+	registro.idUsuario = localStorage.getItem("idUser");
+	registro.cantidad = total;
+	registro.fecha = fecha;
+	fetch("https://calcount.develotion.com/registros.php", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			apikey: localStorage.getItem("apiKey"),
+			iduser: localStorage.getItem("idUser"),
+		},
+		body: JSON.stringify(registro),
+	})
 		.then(function (response) {
 			console.log(response);
 			return response.json();
 		})
 		.then(function (data) {
 			console.log(data);
-			AlimentoLista = data.alimentos;
-			for (let alimento of AlimentoLista) {
-				document.querySelector(
-					"#slcAlimento"
-				).innerHTML += `<ion-select-option value="${alimento.id}">${alimento.nombre}</ion-select-option>`;
+			if (data.codigo == 200) {
+				MostrarToast("Exito!", 3000, "success");
+			} else {
+				MostrarToast(data.mensaje, 5000, "danger");
 			}
 		});
-	DetenerLoader();
 }
-
-
