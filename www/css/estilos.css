@@ -36,7 +36,7 @@ body {
     --ion-card-background: #1e1e1e;
   }
   
-#map { height: 380px; }
+#map { height: 480px; }
 
 ion-modal {
   --width: fit-content;
