@@ -37,3 +37,15 @@ body {
   }
   
 #map { height: 380px; }
+
+ion-modal {
+  --width: fit-content;
+  --height: fit-content;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+ion-modal::part(backdrop) {
+  background: rgba(209, 213, 219, 0);
+  opacity: 1;
+}

@@ -176,6 +176,7 @@ function Navegar(evt) {
   } else if (RUTA == "/listar") {
     LISTAR.style.display = "block";
     ObtenerRegistros();
+    filtroRegistros.max = new Date().toISOString();
   }
 }
 function cerrarMenu() {
